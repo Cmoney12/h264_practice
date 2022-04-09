@@ -76,7 +76,6 @@ public:
         av_packet.flags = AV_PKT_FLAG_CORRUPT;
         av_packet.pos = -1;
 
-
         avcodec_send_packet(context, &av_packet);
 
         int ret = avcodec_receive_frame(context, frame);

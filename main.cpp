@@ -5,8 +5,8 @@
 
 int main() {
     cv::Mat image;
-    int width = 720;
-    int height = 1280;
+    int width = 1280;
+    int height = 720;
     float fps = 30.0;
     cv::namedWindow("Display window");
     cv::VideoCapture cap(0);
@@ -20,7 +20,6 @@ int main() {
 
     auto *encoder = new Encoder(width, height, fps);
     auto *decoder = new Decoder(width, height);
-    //auto *decoder = new Decoder(width, height);
 
     if (!cap.isOpened()) {
         std::cout << "cannot open camera";
@@ -31,15 +30,16 @@ int main() {
         int frame_size = encoder->encode_frame(image);
         auto encoded_frame = std::make_unique<std::uint8_t[]>(frame_size);
 
-        //auto encoded_frame = new std::uint8_t[frame_size];
 
-        int offset = frame_size;
+        int offset = 0;
         int queue_size = encoder->queue_size();
         for (int i = 0; i < queue_size; i++) {
             x264_nal_t nal = encoder->getNalUnit();
             std::memcpy(encoded_frame.get() + offset, nal.p_payload, nal.i_payload);
-            offset-=nal.i_payload;
+            offset+=nal.i_payload;
         }
+
+        decoder->decode(encoded_frame.get(), frame_size);
 
         if (offset != frame_size) {
             std::cout << "not Equal" << std::endl;
