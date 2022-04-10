@@ -7,6 +7,7 @@
 
 #include <opencv2/core/mat.hpp>
 #include <iostream>
+#include <cstdlib>
 
 extern "C" {
 #include<libavutil/avutil.h>
@@ -41,7 +42,18 @@ public:
         pFrameBGR = icv_alloc_picture_FFMPEG(AV_PIX_FMT_RGB24, image_w, image_h, true);
     }
 
-    static AVFrame * icv_alloc_picture_FFMPEG(int pix_fmt, int width, int height, bool alloc)
+    ~Decoder() {
+        avcodec_close(this->context);
+        if (this->img_convert_ctx)
+            sws_freeContext(this->img_convert_ctx);
+        if (this->frame)
+            av_frame_free(&this->frame);
+        if (this->pFrameBGR)
+            av_frame_free(&this->pFrameBGR);
+
+    }
+
+    static AVFrame * icv_alloc_picture_FFMPEG(const int& pix_fmt, const int& width, const int& height, const bool& alloc)
     {
         AVFrame * picture;
         uint8_t * picture_buf;
@@ -53,7 +65,8 @@ public:
         size = av_image_get_buffer_size((AVPixelFormat)pix_fmt, width, height, 1);
         if(alloc)
         {
-            picture_buf = new uint8_t[size];
+            picture_buf = (uint8_t *) malloc(size);
+            //picture_buf = new uint8_t[size];
             if (!picture_buf)
             {
                 av_frame_free(&picture);
@@ -97,8 +110,6 @@ public:
         if (!success) {
             return 0;
         }
-
-        //av_free(&av_packet);
 
         return success;
 
