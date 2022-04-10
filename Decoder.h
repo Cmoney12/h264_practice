@@ -34,7 +34,7 @@ public:
         avcodec_open2(context, codec, nullptr);
 
         img_convert_ctx = sws_getContext(image_w, image_h, AV_PIX_FMT_YUV420P, image_w, image_h,
-                                         AV_PIX_FMT_RGB24, SWS_FAST_BILINEAR,nullptr,
+                                         AV_PIX_FMT_BGR24, SWS_FAST_BILINEAR,nullptr,
                                          nullptr, nullptr);
 
         frame = icv_alloc_picture_FFMPEG(AV_PIX_FMT_YUV420P, image_w, image_h, true);
@@ -89,8 +89,10 @@ public:
 
         pCvMat.create(cv::Size(image_w, image_h), CV_8UC3);
 
-        int success = av_image_copy_to_buffer(pCvMat.data, rgb_size, pFrameBGR->data, pFrameBGR->linesize,
-                                              AV_PIX_FMT_RGB24, context->width, context->height, 1);
+        //int success = av_image_copy_to_buffer(pCvMat.data, rgb_size, pFrameBGR->data, pFrameBGR->linesize, AV_PIX_FMT_RGB24, context->width, context->height, 1);
+
+        int success = av_image_copy_to_buffer(pCvMat.data, rgb_size, pFrameBGR->data, pFrameBGR->linesize, AV_PIX_FMT_BGR24, context->width, context->height, 1);
+
 
         if (!success) {
             return 0;
